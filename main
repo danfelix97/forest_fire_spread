@@ -1,0 +1,51 @@
+#include <iostream>
+#include <vector>
+#include <queue>
+using namespace std;
+
+int minDaysToBurn(vector<vector<int>>&forest) { //this enables the grid
+    int rows = forest.size(); //rows by size
+    int cols = forest[0].size(); //columns by size
+    queue<pair<int, int>> q;
+    int healthyTrees = 0;
+    int days = 0;
+    int dirs[4][2] = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}}; //the directions of the grid
+
+    for (int r = 0; r < rows; r++){ //goes through the grid to check for burned/healthy trees
+        for (int c = 0; c < cols; c++) {
+            if (forest[r][c] == 2) //2 (burned tree) to column
+                q.push({r, c});
+                else if (forest[r][c] == 1) healthyTrees++; //count the healthy tree
+        }
+    }
+
+        if (healthyTrees == 0) return 0; //if no healthy trees then it equals 0
+
+        while (!q.empty()) { //if trees are burning continue
+            days++; //additional day
+            for (int i = 0, sz = q.size(); i < sz; i++) {
+                auto [r, c] = q.front(); q.pop(); //find next tree location
+                for (auto& d : dirs) { //scan directions 
+                    int nr = r + d[0], nc = c + d[1]; //find next position
+                    if (nr >= 0 && nr < rows && nc >= 0 && nc < cols && forest [nr][nc] ==1) {
+                        forest [nr][nc] = 2; //fire
+                        healthyTrees --; //minus a healthy tree
+                        q.push({nr, nc}); //push to queue, spread more of the fire
+                }
+            }
+        }
+    }
+
+    if (healthyTrees>0) return -1; //if there are healthy trees they cannot be burned
+    return days - 1; //no fire spread so -1
+}
+
+int main() {
+    vector <vector<int>> f1 = {{2, 1, 1}, {1, 1, 0}, {0, 1, 1}};
+    vector <vector<int>> f2 = {{2, 1, 1}, {0, 1, 1}, {1, 0, 0}};
+    vector <vector<int>> f3 = {{0, 2}};
+
+    cout << "Test 1: " << minDaysToBurn(f1) << endl;
+    cout << "Test 2: " << minDaysToBurn(f2) << endl;
+    cout << "Test 3: " <<minDaysToBurn(f3) << endl;
+}
